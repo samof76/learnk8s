@@ -58,7 +58,9 @@ tenant.
     = affinity rules can be standardized
   - Every tenant will inherits from base and applies customizations on top
     = Resoure requests and limits
-    = Configs and Auth
+    = Configs changes and Auth changes
+
+
  
 Monitoring and Logging
 ======================
@@ -69,5 +71,54 @@ Standard hasyack/trigmetry commons deployment will be done on the EKS cluster.
 - All pods to write logs to standard out
 - Grafana-agent/Cloud-agent to runs as a Daemonset on every node to ship metrics
 - Filebeat to run as the Daemonset to every node to ship logs
+
+Operational Requirements
+========================
+- Ability consistently deploy Redis-Sentinel
+  = Naming conventions
+    - Consistent naming
+    - Consistent labels
+    - Consistent annotations
+  = Ensure Reproduceability
+    - Ability to recreate in case of failures
+  = Ensure Discoverability
+    - Sentinel to discover redis pods
+  = Fail fast: Create all or none
+- Ability upgrade Redis-Sentinel deployments
+  = Resource upgrades
+    + RAM
+    + CPU
+    + Storage
+  = Service updates
+    + Image version
+    + Sidecar versions
+  = Ensure data consistency
+- Metrics and Logging
+  = Infra Dashboards
+  = Tenant Dashboards
+  = Alerts
+- Inegration with Non-K8s services
+  = S3 for backups
+  = Route53 for endpoints
+  = EBS for persistence
+- Downtime management
+  = SOP for Service downtimes
+  = 
+
+Availability Requirements
+=========================
+- Infra failure
+  = Node failure
+  = AZ failure
+  = Network failure
+- K8s resource failures
+  = Pod failures
+  = Other component failures
+
+Reliability Requirements
+========================
+- Data consistency
+- Perfomance / Latency
+- SLA
 
 
