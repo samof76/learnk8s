@@ -1,0 +1,73 @@
+The Redis-Sentinel on K8s
+=========================
+
+Requirements
+============
+
+Run a reliable and highly available redis-sentinel installation for multiple
+tenants on kubernetes cluster.
+
+What does reliable mean?
+========================
+
+Redis reliability is the ability to be consistent across failures and ensure
+that faults are isolated and addressed.
+- Consitent backups(RDB)
+- AOF
+- Recovery process(Meant time between failures)
+
+What does availability mean?
+============================
+
+The availability of the redis means that the system availabile inspite the 
+underlying infrastruture failuers.
+- Multi AZ
+- Replicas
+- Sentinel
+
+Deployment Model
+================
+
+The kubernetes deployment model for the redis-sentinel will be namespaced per
+tenant.
+- Redis Statefulset
+  - Pods with mulitple sidecars. Metrics etc
+  - Storage attached for RDB snapshots and  AOF files
+    = Evaluate EBS vs Root volume
+  - Endpoint registration with route53 - non-sentinel-aware-clients
+    = External-DNS
+    = Failover binary as sidecar
+  - Configurations would be passed as config maps
+  
+- Sentinel Deloyment
+  - Why Deployment and not Statefulset? - Need a good justification.
+    = Sentinel does not have state and local storage is not needed.
+    = Reconstructing state of the sentinel is fairly simple
+    = Having said thats my bias toward the spotohome's redis-operator has more
+      to do with this decision than anything else.(raise an issue)
+  - Non-sharded sentinels - one sentinel deployment per redis
+    = Might run into more resource consumption issues for monitoring every
+      redis(i guess this should be ok)
+    = Since namespaced we might have to solve a different concern if shared(not 
+      viable to solve at the moment)
+
+- Kustomization templates
+  - Standard agreed upon base templates needs to created
+    = image name and version should be standard across deployments
+    = security provisions should be standard across deployments
+    = affinity rules can be standardized
+  - Every tenant will inherits from base and applies customizations on top
+    = Resoure requests and limits
+    = Configs and Auth
+ 
+Monitoring and Logging
+======================
+
+Standard hasyack/trigmetry commons deployment will be done on the EKS cluster.
+- Redis exporter to run as sidecar per pod
+- Every component deployed to expose a prometheus scrape endpoint
+- All pods to write logs to standard out
+- Grafana-agent/Cloud-agent to runs as a Daemonset on every node to ship metrics
+- Filebeat to run as the Daemonset to every node to ship logs
+
+
