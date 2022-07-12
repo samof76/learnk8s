@@ -79,6 +79,144 @@ Operational Requirements
 Operator Model
 ==============
 
++ Available Opensource Operators
++ ==============================
+
+++ Spotahome Redis-Operator
+++ ========================
+
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: foo
+  namespace: bar
+spec:
+  sentinel:
+    replicas: 3
+    resources:
+      requests:
+        cpu: 100m
+      limits:
+        memory: 100Mi
+  redis:
+    replicas: 3
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 400m
+        memory: 500Mi
+
+The above CRD would the following resources in the bar namespace
+
+rfr-foo: Redis configmap
+rfr-foo: Redis statefulset
+rfr-foo: Redis service (if redis-exporter is enabled)
+rfs-foo: Sentinel configmap
+rfs-foo: Sentinel deployment
+rfs-foo: Sentinel service
+
+All these resources will be managed by the redis-operator
+
+!!! Customizations can be applied to various resources as you would see below,
+    except for the dir, host and port.
+
++++ Persistence
++++ ===========
+
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: foo-persistent-with-keep
+spec:
+  sentinel:
+    replicas: 3
+  redis:
+    replicas: 3
+    storage:
+      keepAfterDeletion: true
+      persistentVolumeClaim:
+        metadata:
+          name: foo-persistent-data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+
+- Volumes deleted when RedisFailover resource is deleted
+- Use the keepAfterDeletion to Keep the volume
+? Check with namespaces
+? Check with EBS
+? Pod restarts
+
+
++++ Distribution
++++ ============
+
+Ref: https://bit.ly/3z09TW7
+
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: foo
+  namespace: bar
+spec:
+  sentinel:
+    replicas: 3
+  redis:
+    replicas: 3
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                      - redis
+              topologyKey: topology.kubernetes.io/zone
+
+There are provisions for Distribution of pods, across zones using NodeAffinity,
+PodAffinity and Tolerations.
+
++++ Configuration Changes
++++ =====================
+
+apiVersion: databases.spotahome.com/v1
+kind: RedisFailover
+metadata:
+  name: foo
+  namespace: bar
+spec:
+  sentinel:
+    replicas: 3
+    customConfig:
+      - "down-after-milliseconds 2000"
+      - "failover-timeout 3000"
+  redis:
+    replicas: 3
+    customConfig:
+      - "maxclients 100"
+      - "hz 50"
+      - "timeout 60"
+      - "tcp-keepalive 60"
+      - "client-output-buffer-limit normal 0 0 0"
+      - "client-output-buffer-limit slave 1000000000 1000000000 0"
+      - "client-output-buffer-limit pubsub 33554432 8388608 60"
+
+- customConfig to be used to push custom configurations to the both sentinel and
+  redis.
+- customConfig during runtime of redis/sentinel, are pushed using CONFIG SET
+  command
+? rollback to the default
+? 
+
+
 For the Redis-Sentinel Model there are not many K8s Operators, that are
 maintained. Here are two operators.
 
