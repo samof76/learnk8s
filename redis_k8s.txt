@@ -10,20 +10,80 @@ tenants on kubernetes cluster.
 What does reliable mean?
 ========================
 
-Redis reliability is the ability to be consistent across failures and ensure
-that faults are isolated and addressed.
+Redis reliability is the ability to be consistent in terms of performance and
+data across failures.
 - Consitent backups(RDB)
 - AOF
-- Recovery process(Meant time between failures)
+- Recovery process(Meant time between failures) RTO and RPO
+- SLA
 
 What does availability mean?
 ============================
 
 The availability of the redis means that the system availabile inspite the 
-underlying infrastruture failuers.
+underlying infrastructure failuers.
 - Multi AZ
 - Replicas
 - Sentinel
+
+Failure scenarios
+=================
+The following are some of the failure scenarios
+
+- Infra failure
+  = Node failure
+  = AZ failure
+  = Network failure
+- K8s resource failures
+  = Pod failures
+  = Other component failures
+- Seamless failover
+- Sentinel Availablity
+
+Operational Requirements
+========================
+- Ability consistently deploy Redis-Sentinel
+  = Naming conventions
+    - Consistent naming
+    - Consistent labels
+    - Consistent annotations
+  = Ensure Reproduceability
+    - Ability to recreate in case of failures
+  = Ensure Discoverability
+    - Sentinel to discover redis pods
+  = Fail fast: Create all or none
+- Ability upgrade Redis-Sentinel deployments
+  = Resource upgrades
+    + RAM
+    + CPU
+    + Storage
+  = Service updates
+    + Image version
+    + Sidecar versions
+  = Ensure data consistency
+- Metrics and Logging
+  = Infra Dashboards
+  = Tenant Dashboards
+  = Alerts
+- Inegration with Non-K8s services
+  = S3 for backups
+  = Route53 for endpoints
+  = EBS for persistence
+- Downtime management
+  = SOP for Service downtimes
+  = 
+- Migration
+  = Existing Redis to New Redis(on K8s)
+  = During infra upgrades
+
+Operator Model
+==============
+
+For the Redis-Sentinel Model there are not many K8s Operators, that are
+maintained. Here are two operators.
+
+
+
 
 Deployment Model
 ================
@@ -59,8 +119,6 @@ tenant.
   - Every tenant will inherits from base and applies customizations on top
     = Resoure requests and limits
     = Configs changes and Auth changes
-
-
  
 Monitoring and Logging
 ======================
@@ -104,6 +162,9 @@ Operational Requirements
 - Downtime management
   = SOP for Service downtimes
   = 
+- Migration
+  = Existing Redis to New Redis(on K8s)
+  = During infra upgrades
 
 Availability Requirements
 =========================
@@ -115,7 +176,6 @@ Availability Requirements
   = Pod failures
   = Other component failures
 - Seamless failover
-
 - Sentinel Availablity
 
 Reliability Requirements
@@ -124,12 +184,17 @@ Reliability Requirements
 - Perfomance / Latency
 - SLA
 
+Non-Operator Model
+==================
 
+Operator Model
+==============
+
+Since there are not many operators to choo
 References
 ==========
 Redis Troubleshooting: https://bit.ly/3OV4a9E
 Redis Cell Architecture: https://bit.ly/3aB1LSx
 Redis Tips: https://bit.ly/3nUwVr3
 Redis Operator: https://bityl.co/DBhp
-
-
+Redis K8s Failure: https://lkdin.io/3mBq
