@@ -114,6 +114,9 @@ Availability Requirements
 - K8s resource failures
   = Pod failures
   = Other component failures
+- Seamless failover
+
+- Sentinel Availablity
 
 Reliability Requirements
 ========================
@@ -121,4 +124,10 @@ Reliability Requirements
 - Perfomance / Latency
 - SLA
 
+
+References
+==========
+Redis Troubleshooting: https://bit.ly/3OV4a9E
+Redis Cell Architecture: https://bit.ly/3aB1LSx
+Redis Tips: https://bit.ly/3nUwVr3
 
