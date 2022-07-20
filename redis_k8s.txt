@@ -71,6 +71,7 @@ Operational Requirements
   = EBS for persistence
 - Downtime management
   = SOP for Service downtimes
+  = Debugging and troubleshooting mechanism for operators
   = 
 - Migration
   = Existing Redis to New Redis(on K8s)
@@ -336,3 +337,27 @@ Redis Cell Architecture: https://bit.ly/3aB1LSx
 Redis Tips: https://bit.ly/3nUwVr3
 Redis Operator: https://bityl.co/DBhp
 Redis K8s Failure: https://lkdin.io/3mBq
+
+Redis Cluster with OT-CONTAINER-KIT
+===================================
+
+Installation
+
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/crd/bases/redis.redis.opstreelabs.in_redis.yaml
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/crd/bases/redis.redis.opstreelabs.in_redisclusters.yaml
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/serviceaccount.yaml
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/role.yaml
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/role_binding.yaml
+kubectl apply -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/manager/manager.yaml
+
+Simple installation
+- rfc0.yaml
+
+DESTROY
+
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/manager/manager.yaml
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/role_binding.yaml
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/role.yaml
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/rbac/serviceaccount.yaml
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/crd/bases/redis.redis.opstreelabs.in_redisclusters.yaml
+kubectl delete -f https://raw.githubusercontent.com/OT-CONTAINER-KIT/redis-operator/master/config/crd/bases/redis.redis.opstreelabs.in_redis.yaml
